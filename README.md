@@ -17,7 +17,7 @@ The extension currently pins the local grammar repository:
 ```toml
 [grammars.zuzu]
 repository = "file:///home/tai/src/zuzuscript/tree-sitter-zuzu"
-rev = "12dfe12157d6cdfc019457a2f9503a6a5dd75be3"
+rev = "79b72445e99c05f53bee808b46a60d7062b7b6c4"
 ```
 
 For publishing, change `repository` to

@@ -13,6 +13,7 @@
   "do"
   "else"
   "extends"
+  "fn"
   "for"
   "from"
   "function"
@@ -299,7 +300,7 @@
   key: (bare_key
     (reserved_word_key
       [
-        "async" "await" "do" "false" "function" "new" "null" "self"
+        "async" "await" "do" "false" "fn" "function" "new" "null" "self"
         "spawn" "super" "true" "try"
         "not" "abs" "sqrt" "floor" "ceil" "round" "int" "uc" "lc"
         "length" "typeof"
