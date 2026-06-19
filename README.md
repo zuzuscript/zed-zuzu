@@ -8,7 +8,7 @@ Current scope:
 - recognises `.zzs`, `.zzm`, and extensionless files with a `zuzu` shebang;
 - provides highlighting, indentation, POD injections, bracket matching, outline
   entries, text objects, and basic runnable markers;
-- stays grammar-only until a `zuzu-lsp` implementation is available.
+- launches `zuzu-lsp --stdio` when the language server is available.
 
 ## Local Development
 
@@ -34,5 +34,6 @@ Zed-specific query files live in `languages/zuzu/` and should remain small.
 
 ## Language Server
 
-This extension intentionally does not launch a language server yet. Add
-`zuzu-lsp` wiring once the language server has a stable `--stdio` command.
+The extension first looks for `zuzu-lsp` on Zed's PATH. For local development in
+the umbrella checkout, it also falls back to
+`../zuzu-lsp/target/debug/zuzu-lsp` relative to the `zed-zuzu` worktree.

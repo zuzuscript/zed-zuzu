@@ -18,9 +18,15 @@ require_line() {
 
 require_line "$root/extension.toml" '^id = "zuzu"$'
 require_line "$root/extension.toml" '^schema_version = 1$'
+require_line "$root/extension.toml" '^languages = \["languages/zuzu"\]$'
+require_line "$root/extension.toml" '^\[lib\]$'
+require_line "$root/extension.toml" '^kind = "Rust"$'
+require_line "$root/extension.toml" '^version = "0\.7\.0"$'
 require_line "$root/extension.toml" '^\[grammars\.zuzu\]$'
 require_line "$root/extension.toml" '^repository = "file:///home/tai/src/zuzuscript/tree-sitter-zuzu"$'
 require_line "$root/extension.toml" '^rev = "[0-9a-f]{40}"$'
+require_line "$root/extension.toml" '^\[language_servers\.zuzu-lsp\]$'
+require_line "$root/extension.toml" '^language = "ZuzuScript"$'
 
 pinned_rev="$(sed -n 's/^rev = "\([0-9a-f]\{40\}\)"$/\1/p' "$root/extension.toml")"
 grammar_head="$(git -C "$grammar" rev-parse HEAD)"
