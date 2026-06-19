@@ -4,7 +4,7 @@ version = "0.0.1"
 schema_version = 1
 authors = ["ZuzuScript contributors"]
 description = "ZuzuScript language support for Zed"
-repository = "https://github.com/zuzulang/zed-zuzu"
+repository = "https://github.com/zuzuscript/zed-zuzu"
 
 [grammars.zuzu]
 repository = "file:///home/tai/src/zuzuscript/tree-sitter-zuzu"
