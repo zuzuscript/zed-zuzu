@@ -1,0 +1,11 @@
+id = "zuzu"
+name = "ZuzuScript"
+version = "0.0.1"
+schema_version = 1
+authors = ["ZuzuScript contributors"]
+description = "ZuzuScript language support for Zed"
+repository = "https://github.com/zuzulang/zed-zuzu"
+
+[grammars.zuzu]
+repository = "file:///home/tai/src/zuzuscript/tree-sitter-zuzu"
+rev = "5019155aab1584733b9c7737849470e1d68f16a7"

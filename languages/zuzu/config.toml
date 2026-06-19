@@ -1,0 +1,7 @@
+name = "ZuzuScript"
+grammar = "zuzu"
+path_suffixes = ["zzs", "zzm"]
+line_comments = ["// "]
+tab_size = 4
+hard_tabs = true
+first_line_pattern = "^#!.*\\bzuzu\\b"
