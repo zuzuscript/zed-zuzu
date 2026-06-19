@@ -22,6 +22,16 @@ require_line "$root/extension.toml" '^\[grammars\.zuzu\]$'
 require_line "$root/extension.toml" '^repository = "file:///home/tai/src/zuzuscript/tree-sitter-zuzu"$'
 require_line "$root/extension.toml" '^rev = "[0-9a-f]{40}"$'
 
+pinned_rev="$(sed -n 's/^rev = "\([0-9a-f]\{40\}\)"$/\1/p' "$root/extension.toml")"
+grammar_head="$(git -C "$grammar" rev-parse HEAD)"
+
+if [[ "$pinned_rev" != "$grammar_head" ]]; then
+	printf 'Pinned grammar rev does not match %s HEAD:\n' "$grammar" >&2
+	printf '  extension.toml: %s\n' "$pinned_rev" >&2
+	printf '  grammar HEAD:   %s\n' "$grammar_head" >&2
+	exit 1
+fi
+
 require_line "$root/languages/zuzu/config.toml" '^name = "ZuzuScript"$'
 require_line "$root/languages/zuzu/config.toml" '^grammar = "zuzu"$'
 require_line "$root/languages/zuzu/config.toml" '^path_suffixes = \["zzs", "zzm"\]$'

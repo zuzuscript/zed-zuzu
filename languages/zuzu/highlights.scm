@@ -59,9 +59,11 @@
 
 (number) @number
 (string) @string
+(single_quoted_string) @string.byte
+(triple_single_quoted_string) @string.byte
 (template_string) @string.special
 (template_fragment) @string.special
-(regexp) @string.regexp
+(regexp) @string.regex
 
 (type_identifier) @type
 (private_type_identifier) @type
@@ -97,12 +99,6 @@
 
 (member_expression
   property: (identifier) @property)
-
-(pair_entry
-  key: (identifier) @property)
-
-(named_argument
-  name: (identifier) @property)
 
 (binary_expression
   operator: [
@@ -287,3 +283,24 @@
   "."
   ":"
 ] @punctuation.delimiter
+
+(pair_entry
+  key: (bare_key) @string.special.symbol)
+
+(pair_entry
+  key: (bare_key
+    (identifier) @string.special.symbol))
+
+(pair_entry
+  key: (bare_key
+    (reserved_word_key) @string.special.symbol))
+
+(pair_entry
+  key: (bare_key
+    (reserved_word_key
+      [
+        "async" "await" "do" "false" "function" "new" "null" "self"
+        "spawn" "super" "true" "try"
+        "not" "abs" "sqrt" "floor" "ceil" "round" "int" "uc" "lc"
+        "length" "typeof"
+      ] @string.special.symbol)))
