@@ -19,7 +19,7 @@ require_line() {
 require_line "$root/extension.toml" '^id = "zuzu"$'
 require_line "$root/extension.toml" '^schema_version = 1$'
 require_line "$root/extension.toml" '^languages = \["languages/zuzu"\]$'
-require_line "$root/extension.toml" '^snippets = \["\./snippets/zuzuscript\.json"\]$'
+require_line "$root/extension.toml" '^snippets = "\./snippets/zuzuscript\.json"$'
 require_line "$root/extension.toml" '^\[lib\]$'
 require_line "$root/extension.toml" '^kind = "Rust"$'
 require_line "$root/extension.toml" '^version = "0\.7\.0"$'
