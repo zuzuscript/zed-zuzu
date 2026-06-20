@@ -6,9 +6,9 @@ Current scope:
 
 - registers `tree-sitter-zuzu` as the ZuzuScript grammar;
 - recognises `.zzs`, `.zzm`, and extensionless files with a `zuzu` shebang;
-- provides highlighting, indentation, POD injections, bracket matching, outline
-  entries, text objects, comment/string overrides, literal redactions, and
-  basic runnable markers;
+- provides highlighting, indentation, POD injections, bracket matching,
+  folding, outline entries, text objects, comment/string overrides, literal
+  redactions, and basic runnable markers;
 - launches `zuzu-lsp --stdio` when the language server is available.
 
 ## Local Development
