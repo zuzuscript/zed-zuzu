@@ -282,6 +282,9 @@ elif [[ -f "$wasm" ]]; then
 	if [[ "$wasm" -ot "$root/src/lib.rs" || "$wasm" -ot "$root/extension.toml" || "$wasm" -ot "$root/Cargo.toml" ]]; then
 		warn "compiled extension wasm is older than the source or manifest: $wasm"
 		warn "run $0 --rebuild-wasm, then reload Zed, to rebuild it"
+	elif strings "$wasm" | grep -q '../zuzu-lsp/target/debug'; then
+		warn "compiled extension wasm still contains the old ../zuzu-lsp lookup message"
+		warn "run $0 --rebuild-wasm, then reload Zed, to rebuild it"
 	else
 		check "compiled extension wasm is not older than the main source files"
 	fi
@@ -393,6 +396,10 @@ fi
 if [[ -f "$log" ]]; then
 	printf 'Recent Zed Zuzu-related log lines:\n'
 	grep -E 'zuzu|ZuzuScript|invalid type|language not found' "$log" | tail -20 || true
+	if grep -q '../zuzu-lsp/target/debug' "$log"; then
+		warn "Zed log contains the old ../zuzu-lsp error text from a stale extension build"
+		warn "run $0 --rebuild-wasm, then reload Zed, if that error is still appearing"
+	fi
 else
 	warn "Zed log not found: $log"
 fi
