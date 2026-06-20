@@ -10,7 +10,7 @@ require_line() {
 	local file="$1"
 	local pattern="$2"
 
-	if ! grep -Eq "$pattern" "$file"; then
+	if ! grep -Eq -- "$pattern" "$file"; then
 		printf 'Missing expected pattern in %s: %s\n' "$file" "$pattern" >&2
 		exit 1
 	fi
@@ -40,6 +40,7 @@ if [[ ! -x "$root/scripts/smoke-zed-extension.sh" ]]; then
 	exit 1
 fi
 require_line "$root/scripts/doctor-dev-extension.sh" 'build-extension-wasm\.sh'
+require_line "$root/scripts/doctor-dev-extension.sh" '--repair-grammar'
 require_line "$root/scripts/smoke-zed-extension.sh" 'trust_all_worktrees'
 require_line "$root/scripts/smoke-zed-extension.sh" 'starting language server process'
 

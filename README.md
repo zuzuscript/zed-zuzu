@@ -142,8 +142,10 @@ It verifies the dev-extension symlink, generated Zed caches, local grammar
 cache, local `zuzu-lsp` startup, advertised LSP capabilities, and a real
 go-to-definition request across a temporary workspace module.
 With `--rebuild-wasm`, it rebuilds a missing or stale `extension.wasm`.
-With `--repair-cache`, it repairs generated index metadata and rebuilds a
-missing or stale `extension.wasm`.
+With `--repair-grammar`, it updates the generated grammar checkout to the
+pinned revision. With `--repair-cache`, it repairs generated index metadata,
+rebuilds a missing or stale `extension.wasm`, and updates a stale generated
+grammar checkout.
 
 Zed will not start language servers in an untrusted worktree. If the log says
 `Waiting for worktree ... before starting language server zuzu-lsp`, trust the

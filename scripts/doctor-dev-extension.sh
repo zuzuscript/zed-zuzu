@@ -13,6 +13,7 @@ wasm="$root/extension.wasm"
 wasm_builder="$root/scripts/build-extension-wasm.sh"
 repair_index=false
 clear_wasm=false
+repair_grammar=false
 failed=false
 
 for arg in "$@"; do
@@ -26,12 +27,16 @@ for arg in "$@"; do
 		--rebuild-wasm)
 			clear_wasm=true
 			;;
+		--repair-grammar)
+			repair_grammar=true
+			;;
 		--repair-cache)
 			repair_index=true
 			clear_wasm=true
+			repair_grammar=true
 			;;
 		-h|--help)
-			printf 'Usage: %s [--repair-index] [--rebuild-wasm] [--clear-wasm] [--repair-cache]\n' "$0"
+			printf 'Usage: %s [--repair-index] [--rebuild-wasm] [--clear-wasm] [--repair-grammar] [--repair-cache]\n' "$0"
 			exit 0
 			;;
 		*)
@@ -386,6 +391,16 @@ if [[ -d "$grammar/.git" ]]; then
 		check "grammar cache matches pinned rev"
 	else
 		warn "grammar cache rev $rev does not match pinned rev $pinned"
+		if $repair_grammar; then
+			if git -C "$grammar" fetch origin "$pinned" >/dev/null 2>&1 &&
+				git -C "$grammar" checkout --detach "$pinned" >/dev/null 2>&1; then
+				check "repaired grammar cache to pinned rev"
+			else
+				fail "failed to repair grammar cache to pinned rev $pinned"
+			fi
+		else
+			warn "run $0 --repair-grammar, then reload Zed, to update the generated grammar cache"
+		fi
 	fi
 elif [[ -e "$grammar" ]]; then
 	warn "grammar cache exists but is not a git clone: $grammar"
