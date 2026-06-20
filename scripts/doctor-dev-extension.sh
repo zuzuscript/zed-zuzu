@@ -9,15 +9,24 @@ index="$zed_data/extensions/index.json"
 log="$zed_data/logs/Zed.log"
 lsp="$root/../zuzu-lsp/target/debug/zuzu-lsp"
 grammar="$root/grammars/zuzu"
+wasm="$root/extension.wasm"
 repair_index=false
+clear_wasm=false
 
 for arg in "$@"; do
 	case "$arg" in
 		--repair-index)
 			repair_index=true
 			;;
+		--clear-wasm)
+			clear_wasm=true
+			;;
+		--repair-cache)
+			repair_index=true
+			clear_wasm=true
+			;;
 		-h|--help)
-			printf 'Usage: %s [--repair-index]\n' "$0"
+			printf 'Usage: %s [--repair-index] [--clear-wasm] [--repair-cache]\n' "$0"
 			exit 0
 			;;
 		*)
@@ -53,6 +62,22 @@ elif [[ -e "$installed" ]]; then
 	warn "installed extension exists but is not a symlink: $installed"
 else
 	fail "dev extension is not installed at $installed"
+fi
+
+if [[ -f "$wasm" ]]; then
+	if [[ "$wasm" -ot "$root/src/lib.rs" || "$wasm" -ot "$root/extension.toml" || "$wasm" -ot "$root/Cargo.toml" ]]; then
+		warn "compiled extension wasm is older than the source or manifest: $wasm"
+		if $clear_wasm; then
+			rm -f "$wasm"
+			check "removed stale extension wasm; reload Zed to rebuild it"
+		else
+			warn "run $0 --clear-wasm, then reload Zed, to force a rebuild"
+		fi
+	else
+		check "compiled extension wasm is not older than the main source files"
+	fi
+else
+	check "compiled extension wasm is absent; Zed will rebuild it on reload"
 fi
 
 if [[ -f "$index" ]]; then

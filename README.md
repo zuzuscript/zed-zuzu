@@ -97,6 +97,8 @@ ln -sfn /home/tai/src/zuzuscript/zuzu-lsp/target/debug/zuzu-lsp ~/.local/bin/zuz
 
 After changing `extension.toml`, restart Zed or reinstall the dev extension if
 `~/.local/share/zed/extensions/index.json` still shows stale metadata.
+If Zed reports older error text after source changes, remove the generated
+`extension.wasm` and reload Zed so it recompiles the extension.
 
 This helper checks the common local failure modes:
 
@@ -109,6 +111,12 @@ clear that cache entry with:
 
 ```sh
 scripts/doctor-dev-extension.sh --repair-index
+```
+
+To clear both known generated caches in one step, run:
+
+```sh
+scripts/doctor-dev-extension.sh --repair-cache
 ```
 
 ## Runnable Tasks
