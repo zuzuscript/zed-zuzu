@@ -98,6 +98,12 @@ ln -sfn /home/tai/src/zuzuscript/zuzu-lsp/target/debug/zuzu-lsp ~/.local/bin/zuz
 After changing `extension.toml`, restart Zed or reinstall the dev extension if
 `~/.local/share/zed/extensions/index.json` still shows stale metadata.
 
+This helper checks the common local failure modes:
+
+```sh
+scripts/doctor-dev-extension.sh
+```
+
 ## Runnable Tasks
 
 The extension marks three Tree-sitter runnable tags:
