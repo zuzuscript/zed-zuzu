@@ -34,6 +34,43 @@ Zed-specific query files live in `languages/zuzu/` and should remain small.
 
 ## Language Server
 
-The extension first looks for `zuzu-lsp` on Zed's PATH. For local development in
-the umbrella checkout, it also falls back to
-`../zuzu-lsp/target/debug/zuzu-lsp` relative to the `zed-zuzu` worktree.
+The extension starts `zuzu-lsp --stdio` for ZuzuScript buffers. It resolves the
+server in this order:
+
+1. `lsp.zuzu-lsp.binary.path` from Zed settings.
+2. `zuzu-lsp` on Zed's PATH.
+3. `../zuzu-lsp/target/debug/zuzu-lsp` relative to the `zed-zuzu` worktree for
+   local umbrella-checkout development.
+
+Example Zed settings:
+
+```json
+{
+  "lsp": {
+    "zuzu-lsp": {
+      "binary": {
+        "path": "/home/tai/src/zuzuscript/zuzu-lsp/target/debug/zuzu-lsp",
+        "arguments": ["--stdio"],
+        "env": {
+          "ZUZU_STDLIB": "/custom/zuzu/stdlib"
+        }
+      },
+      "initialization_options": {
+        "zuzu": {
+          "moduleRoots": ["vendor/modules"],
+          "runtimeParserDiagnostics": true
+        }
+      },
+      "settings": {
+        "zuzu": {
+          "moduleRoots": ["vendor/modules"],
+          "runtimeParserDiagnostics": true
+        }
+      }
+    }
+  }
+}
+```
+
+If custom binary arguments omit `--stdio`, the extension appends it so Zed still
+starts the server over the LSP stdio transport.

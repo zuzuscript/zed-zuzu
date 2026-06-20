@@ -26,7 +26,8 @@ require_line "$root/extension.toml" '^\[grammars\.zuzu\]$'
 require_line "$root/extension.toml" '^repository = "file:///home/tai/src/zuzuscript/tree-sitter-zuzu"$'
 require_line "$root/extension.toml" '^rev = "[0-9a-f]{40}"$'
 require_line "$root/extension.toml" '^\[language_servers\.zuzu-lsp\]$'
-require_line "$root/extension.toml" '^language = "ZuzuScript"$'
+require_line "$root/extension.toml" '^name = "Zuzu LSP"$'
+require_line "$root/extension.toml" '^languages = \["ZuzuScript"\]$'
 
 pinned_rev="$(sed -n 's/^rev = "\([0-9a-f]\{40\}\)"$/\1/p' "$root/extension.toml")"
 grammar_head="$(git -C "$grammar" rev-parse HEAD)"
