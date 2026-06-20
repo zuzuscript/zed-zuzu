@@ -1,6 +1,10 @@
 use std::path::Path;
 
-use zed_extension_api::{self as zed, LanguageServerId, Result, Worktree};
+use zed_extension_api::{
+    self as zed,
+    lsp::{Completion, CompletionKind, Symbol, SymbolKind},
+    CodeLabel, CodeLabelSpan, LanguageServerId, Result, Worktree,
+};
 
 const LANGUAGE_SERVER_ID: &str = "zuzu-lsp";
 
@@ -54,6 +58,63 @@ impl zed::Extension for ZuzuExtension {
         ensure_zuzu_lsp(language_server_id)?;
         let settings = zed::settings::LspSettings::for_worktree(LANGUAGE_SERVER_ID, worktree)?;
         Ok(settings.settings)
+    }
+
+    fn label_for_completion(
+        &self,
+        language_server_id: &LanguageServerId,
+        completion: Completion,
+    ) -> Option<CodeLabel> {
+        if ensure_zuzu_lsp(language_server_id).is_err() {
+            return None;
+        }
+
+        let kind = completion.kind?;
+        match kind {
+            CompletionKind::Keyword => simple_code_label(&completion.label),
+            CompletionKind::Function => declaration_label("function", &completion.label),
+            CompletionKind::Method => declaration_label("method", &completion.label),
+            CompletionKind::Constructor | CompletionKind::Class | CompletionKind::Struct => {
+                class_label(&completion.label)
+            }
+            CompletionKind::Module => module_label(&completion.label),
+            CompletionKind::Variable | CompletionKind::Field | CompletionKind::Property => {
+                variable_label("let", &completion.label)
+            }
+            CompletionKind::Constant | CompletionKind::EnumMember => {
+                variable_label("const", &completion.label)
+            }
+            CompletionKind::Operator => simple_code_label(&completion.label),
+            _ => None,
+        }
+    }
+
+    fn label_for_symbol(
+        &self,
+        language_server_id: &LanguageServerId,
+        symbol: Symbol,
+    ) -> Option<CodeLabel> {
+        if ensure_zuzu_lsp(language_server_id).is_err() {
+            return None;
+        }
+
+        match symbol.kind {
+            SymbolKind::Function => declaration_label("function", &symbol.name),
+            SymbolKind::Method | SymbolKind::Constructor => {
+                declaration_label("method", &symbol.name)
+            }
+            SymbolKind::Class | SymbolKind::Struct | SymbolKind::Interface => {
+                class_label(&symbol.name)
+            }
+            SymbolKind::Module | SymbolKind::Namespace | SymbolKind::Package => {
+                module_label(&symbol.name)
+            }
+            SymbolKind::Variable | SymbolKind::Field | SymbolKind::Property => {
+                variable_label("let", &symbol.name)
+            }
+            SymbolKind::Constant | SymbolKind::EnumMember => variable_label("const", &symbol.name),
+            _ => simple_code_label(&symbol.name),
+        }
     }
 }
 
@@ -127,6 +188,98 @@ fn development_server_path(worktree: &Worktree) -> Option<String> {
         .join(LANGUAGE_SERVER_ID);
 
     candidate.is_file().then(|| candidate.display().to_string())
+}
+
+fn simple_code_label(label: &str) -> Option<CodeLabel> {
+    if label.is_empty() {
+        return None;
+    }
+
+    Some(CodeLabel {
+        code: label.to_string(),
+        spans: vec![CodeLabelSpan::code_range(0..label.len())],
+        filter_range: (0..label.len()).into(),
+    })
+}
+
+fn declaration_label(keyword: &str, name: &str) -> Option<CodeLabel> {
+    if !is_zuzu_word(name) {
+        return None;
+    }
+
+    let code = format!("{keyword} {name} () {{}}");
+    let display_end = keyword.len() + 1 + name.len();
+    let name_start = keyword.len() + 1;
+    Some(CodeLabel {
+        code,
+        spans: vec![CodeLabelSpan::code_range(0..display_end)],
+        filter_range: (name_start..display_end).into(),
+    })
+}
+
+fn class_label(name: &str) -> Option<CodeLabel> {
+    if !is_zuzu_word(name) {
+        return None;
+    }
+
+    let code = format!("class {name};");
+    let display_end = "class ".len() + name.len();
+    Some(CodeLabel {
+        code,
+        spans: vec![CodeLabelSpan::code_range(0..display_end)],
+        filter_range: ("class ".len()..display_end).into(),
+    })
+}
+
+fn variable_label(keyword: &str, name: &str) -> Option<CodeLabel> {
+    if !is_zuzu_word(name) {
+        return None;
+    }
+
+    let code = format!("{keyword} {name};");
+    let display_end = keyword.len() + 1 + name.len();
+    let name_start = keyword.len() + 1;
+    Some(CodeLabel {
+        code,
+        spans: vec![CodeLabelSpan::code_range(0..display_end)],
+        filter_range: (name_start..display_end).into(),
+    })
+}
+
+fn module_label(module: &str) -> Option<CodeLabel> {
+    if !is_zuzu_module_path(module) {
+        return None;
+    }
+
+    let code = format!("from {module} import Symbol;");
+    let start = "from ".len();
+    let end = start + module.len();
+    Some(CodeLabel {
+        code,
+        spans: vec![CodeLabelSpan::code_range(start..end)],
+        filter_range: (start..end).into(),
+    })
+}
+
+fn is_zuzu_module_path(module: &str) -> bool {
+    !module.is_empty() && module.split('/').all(is_zuzu_word)
+}
+
+fn is_zuzu_word(word: &str) -> bool {
+    let mut chars = word.chars();
+    let Some(first) = chars.next() else {
+        return false;
+    };
+
+    if first.is_ascii_digit() || !is_zuzu_word_char(first) {
+        return false;
+    }
+
+    chars.all(is_zuzu_word_char)
+}
+
+fn is_zuzu_word_char(ch: char) -> bool {
+    ch == '_' || ch.is_alphanumeric()
 }
 
 zed::register_extension!(ZuzuExtension);
