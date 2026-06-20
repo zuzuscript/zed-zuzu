@@ -35,6 +35,9 @@ scripts/sync-tree-sitter-queries.sh
 
 Zed-specific query files live in `languages/zuzu/` and should remain small.
 
+Snippets are registered from `./snippets/zuzuscript.json`; the filename matches
+Zed's lowercase language-name convention for `ZuzuScript`.
+
 ## Language Server
 
 The extension starts `zuzu-lsp --stdio` for ZuzuScript buffers. It resolves the
