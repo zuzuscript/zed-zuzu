@@ -14,17 +14,18 @@ Current scope:
 
 ## Local Development
 
-The extension currently pins the local grammar repository:
+The extension pins the published grammar repository:
 
 ```toml
 [grammars.zuzu]
-repository = "file:///home/tai/src/zuzuscript/tree-sitter-zuzu"
+repository = "https://github.com/zuzuscript/tree-sitter-zuzu"
 rev = "79b72445e99c05f53bee808b46a60d7062b7b6c4"
 ```
 
-For publishing, change `repository` to
-`https://github.com/zuzulang/tree-sitter-zuzu` and pin `rev` to a published
-commit SHA or tag.
+For local grammar development, set `TREE_SITTER_ZUZU_DIR` when running the
+extension checks or query sync script. The manifest should keep pointing at the
+published grammar repository so a dev extension checkout is not tied to one
+machine's filesystem layout.
 
 Shared query files are copied from `tree-sitter-zuzu`:
 
