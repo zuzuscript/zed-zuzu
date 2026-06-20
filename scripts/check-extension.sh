@@ -48,6 +48,9 @@ require_line "$root/languages/zuzu/config.toml" '^path_suffixes = \["zzs", "zzm"
 require_line "$root/languages/zuzu/config.toml" '^block_comment = \{ start = "/\*", prefix = " ", end = " \*/", tab_size = 0 \}$'
 require_line "$root/languages/zuzu/config.toml" '^first_line_pattern = "\^#!\.\*\\\\bzuzu\\\\b"$'
 require_line "$root/languages/zuzu/config.toml" '^brackets = \[$'
+require_line "$root/languages/zuzu/runnables.scm" 'tag zuzu-script'
+require_line "$root/languages/zuzu/runnables.scm" 'tag zuzu-entrypoint'
+require_line "$root/languages/zuzu/runnables.scm" 'tag zuzu-test'
 
 node -e 'JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"))' "$root/snippets/zuzuscript.json"
 

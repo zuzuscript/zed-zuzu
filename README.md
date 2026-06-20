@@ -85,3 +85,30 @@ starts the server over the LSP stdio transport.
 The extension maps Zed's `ZuzuScript` language to the LSP language id `zuzu`.
 That keeps untitled ZuzuScript buffers and extensionless shebang scripts on the
 same document-classification path as `.zzs` and `.zzm` files.
+
+## Runnable Tasks
+
+The extension marks three Tree-sitter runnable tags:
+
+- `zuzu-script` for files with a Zuzu shebang;
+- `zuzu-entrypoint` for `function __main__()`;
+- `zuzu-test` for ztest files with a top-level `plan(...)` call.
+
+Bind those tags in `.zed/tasks.json` or your global Zed tasks:
+
+```json
+[
+  {
+    "label": "Run Zuzu script",
+    "command": "zuzu",
+    "args": ["$ZED_FILE"],
+    "tags": ["zuzu-script", "zuzu-entrypoint"]
+  },
+  {
+    "label": "Run Zuzu test",
+    "command": "zuzuprove",
+    "args": ["$ZED_FILE"],
+    "tags": ["zuzu-test"]
+  }
+]
+```
