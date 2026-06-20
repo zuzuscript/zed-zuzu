@@ -130,22 +130,41 @@ try:
     response = read_message(process)
     capabilities = response.get("result", {}).get("capabilities", {})
     required = {
+        "callHierarchyProvider": lambda value: value is True,
+        "codeActionProvider": lambda value: isinstance(value, dict) or value is True,
+        "codeLensProvider": lambda value: isinstance(value, dict),
+        "completionProvider": lambda value: isinstance(value, dict),
         "definitionProvider": lambda value: value is True,
+        "diagnosticProvider": lambda value: isinstance(value, dict),
+        "documentFormattingProvider": lambda value: value is True,
+        "documentHighlightProvider": lambda value: value is True,
+        "documentLinkProvider": lambda value: isinstance(value, dict),
         "documentSymbolProvider": lambda value: value is True,
+        "executeCommandProvider": lambda value: isinstance(value, dict),
         "foldingRangeProvider": lambda value: value is True or isinstance(value, dict),
+        "hoverProvider": lambda value: value is True,
+        "inlayHintProvider": lambda value: isinstance(value, dict),
         "referencesProvider": lambda value: value is True,
         "renameProvider": lambda value: isinstance(value, dict) or value is True,
         "semanticTokensProvider": lambda value: isinstance(value, dict),
+        "selectionRangeProvider": lambda value: value is True,
+        "signatureHelpProvider": lambda value: isinstance(value, dict),
+        "typeHierarchyProvider": lambda value: value is True,
+        "workspaceSymbolProvider": lambda value: value is True,
     }
     missing = [
         name
         for name, predicate in required.items()
         if not predicate(capabilities.get(name))
     ]
+    workspace_capabilities = capabilities.get("workspace", {})
+    workspace_folders = workspace_capabilities.get("workspaceFolders", {})
+    if workspace_folders.get("supported") is not True:
+        missing.append("workspace.workspaceFolders.supported")
     if missing:
         print("missing LSP capabilities: " + ", ".join(missing))
         sys.exit(1)
-    print("definition, symbols, folding, references, rename, semantic tokens")
+    print(", ".join(sorted(required.keys())) + ", workspace folders")
 finally:
     if workspace is not None:
         try:

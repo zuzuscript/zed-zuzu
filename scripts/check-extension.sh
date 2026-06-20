@@ -51,6 +51,26 @@ require_line "$root/languages/zuzu/runnables.scm" 'tag zuzu-script'
 require_line "$root/languages/zuzu/runnables.scm" 'tag zuzu-entrypoint'
 require_line "$root/languages/zuzu/runnables.scm" 'tag zuzu-test'
 
+expected_queries=(
+	brackets.scm
+	folds.scm
+	highlights.scm
+	indents.scm
+	injections.scm
+	outline.scm
+	overrides.scm
+	redactions.scm
+	runnables.scm
+	textobjects.scm
+)
+
+for query in "${expected_queries[@]}"; do
+	if [[ ! -f "$root/languages/zuzu/$query" ]]; then
+		printf 'Missing Zed query file: languages/zuzu/%s\n' "$query" >&2
+		exit 1
+	fi
+done
+
 node -e '
 const snippets = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
 for (const key of ["zscript", "zmodule", "zfn", "zclass", "zcclass", "ztrait", "ztest", "zimport", "ztryimport", "zpod"]) {
