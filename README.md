@@ -80,3 +80,7 @@ Example Zed settings:
 
 If custom binary arguments omit `--stdio`, the extension appends it so Zed still
 starts the server over the LSP stdio transport.
+
+The extension maps Zed's `ZuzuScript` language to the LSP language id `zuzu`.
+That keeps untitled ZuzuScript buffers and extensionless shebang scripts on the
+same document-classification path as `.zzs` and `.zzm` files.

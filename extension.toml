@@ -20,3 +20,6 @@ rev = "0ad04a355bd94954830d01f23bfa69822995e23c"
 [language_servers.zuzu-lsp]
 name = "Zuzu LSP"
 languages = ["ZuzuScript"]
+
+[language_servers.zuzu-lsp.language_ids]
+ZuzuScript = "zuzu"
