@@ -19,7 +19,7 @@ The extension pins the published grammar repository:
 ```toml
 [grammars.zuzu]
 repository = "https://github.com/zuzuscript/tree-sitter-zuzu"
-rev = "79b72445e99c05f53bee808b46a60d7062b7b6c4"
+rev = "0ad04a355bd94954830d01f23bfa69822995e23c"
 ```
 
 For local grammar development, set `TREE_SITTER_ZUZU_DIR` when running the

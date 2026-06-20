@@ -60,8 +60,8 @@
 
 (number) @number
 (string) @string
-(single_quoted_string) @string.byte
-(triple_single_quoted_string) @string.byte
+(single_quoted_string) @string @string.byte
+(triple_single_quoted_string) @string @string.byte
 (template_string) @string.special
 (template_fragment) @string.special
 (regexp) @string.regex
