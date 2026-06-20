@@ -25,7 +25,8 @@ impl zed::Extension for ZuzuExtension {
         let settings = zed::settings::LspSettings::for_worktree(LANGUAGE_SERVER_ID, worktree)?;
         let command = configured_binary_path(&settings)
             .or_else(|| worktree.which(LANGUAGE_SERVER_ID))
-            .or_else(|| development_server_path(worktree));
+            .or_else(|| development_server_path(worktree))
+            .or_else(|| home_development_server_path(worktree));
 
         let Some(command) = command else {
             return Err(format!(
@@ -193,6 +194,26 @@ fn development_server_path(worktree: &Worktree) -> Option<String> {
     None
 }
 
+fn home_development_server_path(worktree: &Worktree) -> Option<String> {
+    let home =
+        shell_env_value(worktree, "HOME").or_else(|| shell_env_value(worktree, "USERPROFILE"))?;
+    let home = Path::new(&home);
+
+    for root in [
+        home.join("src").join("zuzuscript"),
+        home.join("src"),
+        home.to_path_buf(),
+    ] {
+        for candidate in development_server_candidates(&root) {
+            if candidate.is_file() {
+                return Some(candidate.display().to_string());
+            }
+        }
+    }
+
+    None
+}
+
 fn development_server_candidates(root: &Path) -> Vec<PathBuf> {
     let mut candidates = Vec::new();
     for executable in [LANGUAGE_SERVER_ID, "zuzu-lsp.exe"] {
@@ -205,6 +226,13 @@ fn development_server_candidates(root: &Path) -> Vec<PathBuf> {
         );
     }
     candidates
+}
+
+fn shell_env_value(worktree: &Worktree, key: &str) -> Option<String> {
+    worktree
+        .shell_env()
+        .into_iter()
+        .find_map(|(name, value)| (name == key).then_some(value))
 }
 
 fn simple_code_label(label: &str) -> Option<CodeLabel> {

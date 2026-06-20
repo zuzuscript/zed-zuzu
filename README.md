@@ -49,6 +49,8 @@ server in this order:
 2. `zuzu-lsp` on Zed's PATH.
 3. `target/debug/zuzu-lsp` or `zuzu-lsp/target/debug/zuzu-lsp` under the open
    worktree or one of its ancestors for local umbrella-checkout development.
+4. `zuzu-lsp/target/debug/zuzu-lsp` under `$HOME/src/zuzuscript`, `$HOME/src`,
+   or `$HOME` for local dev-extension checkouts.
 
 Example Zed settings:
 
