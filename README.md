@@ -9,8 +9,6 @@ Current scope:
 - provides highlighting, indentation, POD injections, bracket matching, outline
   entries, text objects, comment/string overrides, literal redactions, and
   basic runnable markers;
-- provides practical snippets for scripts, modules, declarations, imports,
-  tests, and POD;
 - launches `zuzu-lsp --stdio` when the language server is available.
 
 ## Local Development
@@ -36,9 +34,9 @@ scripts/sync-tree-sitter-queries.sh
 
 Zed-specific query files live in `languages/zuzu/` and should remain small.
 
-Snippets are registered from `./snippets/zuzuscript.json`; `snippets` is a
-single manifest path. The bundled file uses the extension-host prefix-to-body
-map format.
+`snippets/zuzuscript.json` is kept as a candidate snippet set, but it is not
+registered in `extension.toml` until the extension-host snippet schema is
+settled. Snippet registration errors should not block language or LSP loading.
 
 ## Language Server
 
