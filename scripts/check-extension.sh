@@ -52,7 +52,14 @@ require_line "$root/languages/zuzu/runnables.scm" 'tag zuzu-script'
 require_line "$root/languages/zuzu/runnables.scm" 'tag zuzu-entrypoint'
 require_line "$root/languages/zuzu/runnables.scm" 'tag zuzu-test'
 
-node -e 'JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"))' "$root/snippets/zuzuscript.json"
+node -e '
+const snippets = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
+for (const key of ["zscript", "zmodule", "zfn", "zclass", "zcclass", "ztrait", "ztest", "zimport", "ztryimport", "zpod"]) {
+	if (typeof snippets[key] !== "string") {
+		throw new Error(`missing string snippet: ${key}`);
+	}
+}
+' "$root/snippets/zuzuscript.json"
 
 for query in "$root"/languages/zuzu/*.scm; do
 	printf 'Checking %s\n' "${query#$root/}"

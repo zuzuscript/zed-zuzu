@@ -37,8 +37,8 @@ scripts/sync-tree-sitter-queries.sh
 Zed-specific query files live in `languages/zuzu/` and should remain small.
 
 Snippets are registered from `./snippets/zuzuscript.json`; `snippets` is a
-single manifest path, and the filename matches Zed's lowercase language-name
-convention for `ZuzuScript`.
+single manifest path. The bundled file uses the extension-host prefix-to-body
+map format.
 
 ## Language Server
 
