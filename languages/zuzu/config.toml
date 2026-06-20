@@ -2,6 +2,15 @@ name = "ZuzuScript"
 grammar = "zuzu"
 path_suffixes = ["zzs", "zzm"]
 line_comments = ["// "]
+block_comment = { start = "/*", prefix = " ", end = " */", tab_size = 0 }
 tab_size = 4
 hard_tabs = true
 first_line_pattern = "^#!.*\\bzuzu\\b"
+brackets = [
+	{ start = "{", end = "}", close = true, newline = true, not_in = ["comment", "string"] },
+	{ start = "[", end = "]", close = true, newline = true, not_in = ["comment", "string"] },
+	{ start = "(", end = ")", close = true, newline = true, not_in = ["comment", "string"] },
+	{ start = "\"", end = "\"", close = true, newline = false, not_in = ["comment", "string"] },
+	{ start = "'", end = "'", close = true, newline = false, not_in = ["comment", "string"] },
+	{ start = "`", end = "`", close = true, newline = false, not_in = ["comment", "string"] },
+]
