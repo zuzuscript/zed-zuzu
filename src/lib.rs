@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use zed_extension_api::{
     self as zed,
@@ -29,7 +29,7 @@ impl zed::Extension for ZuzuExtension {
 
         let Some(command) = command else {
             return Err(format!(
-                "{LANGUAGE_SERVER_ID} was not found. Configure `lsp.{LANGUAGE_SERVER_ID}.binary.path`, install it on PATH, or build ../zuzu-lsp/target/debug/{LANGUAGE_SERVER_ID} for local development."
+                "{LANGUAGE_SERVER_ID} was not found. Configure `lsp.{LANGUAGE_SERVER_ID}.binary.path`, install it on PATH, or build zuzu-lsp/target/debug/{LANGUAGE_SERVER_ID} in this workspace or an ancestor workspace for local development."
             ));
         };
 
@@ -179,15 +179,32 @@ fn upsert_env(env: &mut zed::EnvVars, key: &str, value: &str) {
 
 fn development_server_path(worktree: &Worktree) -> Option<String> {
     let root_path = worktree.root_path();
-    let worktree_root = Path::new(&root_path);
-    let candidate = worktree_root
-        .parent()?
-        .join(LANGUAGE_SERVER_ID)
-        .join("target")
-        .join("debug")
-        .join(LANGUAGE_SERVER_ID);
+    let mut current = Some(Path::new(&root_path));
 
-    candidate.is_file().then(|| candidate.display().to_string())
+    while let Some(root) = current {
+        for candidate in development_server_candidates(root) {
+            if candidate.is_file() {
+                return Some(candidate.display().to_string());
+            }
+        }
+        current = root.parent();
+    }
+
+    None
+}
+
+fn development_server_candidates(root: &Path) -> Vec<PathBuf> {
+    let mut candidates = Vec::new();
+    for executable in [LANGUAGE_SERVER_ID, "zuzu-lsp.exe"] {
+        candidates.push(root.join("target").join("debug").join(executable));
+        candidates.push(
+            root.join(LANGUAGE_SERVER_ID)
+                .join("target")
+                .join("debug")
+                .join(executable),
+        );
+    }
+    candidates
 }
 
 fn simple_code_label(label: &str) -> Option<CodeLabel> {

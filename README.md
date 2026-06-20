@@ -46,8 +46,8 @@ server in this order:
 
 1. `lsp.zuzu-lsp.binary.path` from Zed settings.
 2. `zuzu-lsp` on Zed's PATH.
-3. `../zuzu-lsp/target/debug/zuzu-lsp` relative to the `zed-zuzu` worktree for
-   local umbrella-checkout development.
+3. `target/debug/zuzu-lsp` or `zuzu-lsp/target/debug/zuzu-lsp` under the open
+   worktree or one of its ancestors for local umbrella-checkout development.
 
 Example Zed settings:
 
