@@ -1,94 +1,52 @@
 {
   "Script With Entrypoint": {
     "prefix": "zscript",
-    "body": [
-      "#!/usr/bin/env zuzu",
-      "",
-      "function __main__() {",
-      "\t$0",
-      "}"
-    ],
+    "body": "#!/usr/bin/env zuzu\n\nfunction __main__() {\n\t$0\n}",
     "description": "Create a ZuzuScript script with the standard __main__ entrypoint."
   },
   "Module Skeleton": {
     "prefix": "zmodule",
-    "body": [
-      "=head1 NAME",
-      "",
-      "${1:module/name} - ${2:short description}",
-      "",
-      "=cut",
-      "",
-      "$0"
-    ],
+    "body": "=head1 NAME\n\n${1:module/name} - ${2:short description}\n\n=cut\n\n$0",
     "description": "Create a ZuzuScript module documentation skeleton."
   },
   "Function": {
     "prefix": "zfn",
-    "body": [
-      "function ${1:name}(${2:args}) {",
-      "\t$0",
-      "}"
-    ],
+    "body": "function ${1:name}(${2:args}) {\n\t$0\n}",
     "description": "Create a ZuzuScript function."
   },
   "Class": {
     "prefix": "zclass",
-    "body": [
-      "class ${1:Name} {",
-      "\t$0",
-      "}"
-    ],
+    "body": "class ${1:Name} {\n\t$0\n}",
     "description": "Create a ZuzuScript class block."
   },
   "Compact Class": {
     "prefix": "zcclass",
-    "body": [
-      "class ${1:Name};"
-    ],
+    "body": "class ${1:Name};",
     "description": "Create a compact ZuzuScript class declaration."
   },
   "Trait": {
     "prefix": "ztrait",
-    "body": [
-      "trait ${1:Name} {",
-      "\t$0",
-      "}"
-    ],
+    "body": "trait ${1:Name} {\n\t$0\n}",
     "description": "Create a ZuzuScript trait."
   },
   "Ztest": {
     "prefix": "ztest",
-    "body": [
-      "say \"1..${1:1}\";",
-      "say \"ok 1 - ${2:description}\";",
-      "$0"
-    ],
+    "body": "say \"1..${1:1}\";\nsay \"ok 1 - ${2:description}\";\n$0",
     "description": "Create a minimal TAP-emitting ZuzuScript test."
   },
   "Import": {
     "prefix": "zimport",
-    "body": [
-      "from ${1:module/name} import ${2:Symbol};"
-    ],
+    "body": "from ${1:module/name} import ${2:Symbol};",
     "description": "Import symbols from a ZuzuScript module."
   },
   "Try Import": {
     "prefix": "ztryimport",
-    "body": [
-      "from ${1:module/name} try import ${2:Symbol};"
-    ],
+    "body": "from ${1:module/name} try import ${2:Symbol};",
     "description": "Optionally import symbols from a ZuzuScript module."
   },
   "POD Section": {
     "prefix": "zpod",
-    "body": [
-      "=head1 ${1:NAME}",
-      "",
-      "$0",
-      "",
-      "=cut"
-    ],
+    "body": "=head1 ${1:NAME}\n\n$0\n\n=cut",
     "description": "Create a POD documentation section."
   }
 }
