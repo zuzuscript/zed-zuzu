@@ -87,6 +87,25 @@ The extension maps Zed's `ZuzuScript` language to the LSP language id `zuzu`.
 That keeps untitled ZuzuScript buffers and extensionless shebang scripts on the
 same document-classification path as `.zzs` and `.zzm` files.
 
+The language server advertises editor features including hover, completions,
+signature help, document symbols, workspace symbols, go to definition,
+references, document highlights, rename, document links, diagnostics, code
+actions, code lenses, folding ranges, selection ranges, inlay hints,
+call/type hierarchy, and semantic tokens.
+
+Zed requests semantic tokens only when enabled in settings. To combine
+tree-sitter highlighting with Zuzu LSP semantic tokens, use:
+
+```json
+{
+  "languages": {
+    "ZuzuScript": {
+      "semantic_tokens": "combined"
+    }
+  }
+}
+```
+
 For local testing, check Zed's inherited PATH if the log says `zuzu-lsp` was
 not found. Desktop-launched Zed may not inherit the same shell PATH as a
 terminal. A local symlink is often enough:

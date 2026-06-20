@@ -12,6 +12,7 @@ grammar="$root/grammars/zuzu"
 wasm="$root/extension.wasm"
 repair_index=false
 clear_wasm=false
+failed=false
 
 for arg in "$@"; do
 	case "$arg" in
@@ -45,7 +46,124 @@ warn() {
 }
 
 fail() {
+	failed=true
 	printf 'fail: %s\n' "$1"
+}
+
+check_lsp_capabilities() {
+	python3 - "$lsp" "$root" <<'PY'
+import json
+import pathlib
+import select
+import subprocess
+import sys
+import tempfile
+import time
+
+lsp, root = sys.argv[1], sys.argv[2]
+
+
+def send(process, message):
+    body = json.dumps(message).encode("utf-8")
+    header = f"Content-Length: {len(body)}\r\n\r\n".encode("ascii")
+    process.stdin.write(header + body)
+    process.stdin.flush()
+
+
+def read_message(process):
+    deadline = time.monotonic() + 5
+    header = b""
+    while b"\r\n\r\n" not in header:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError("timed out waiting for LSP response headers")
+        ready, _, _ = select.select([process.stdout], [], [], remaining)
+        if not ready:
+            raise TimeoutError("timed out waiting for LSP response headers")
+        chunk = process.stdout.read(1)
+        if not chunk:
+            stderr = process.stderr.read().decode("utf-8", "replace")
+            raise RuntimeError(f"LSP exited before responding: {stderr}")
+        header += chunk
+
+    headers = header.decode("ascii", "replace").split("\r\n")
+    length = None
+    for line in headers:
+        if line.lower().startswith("content-length:"):
+            length = int(line.split(":", 1)[1].strip())
+            break
+    if length is None:
+        raise RuntimeError("LSP response omitted Content-Length")
+
+    body = process.stdout.read(length)
+    if len(body) != length:
+        raise RuntimeError("LSP response body was truncated")
+    return json.loads(body)
+
+
+process = subprocess.Popen(
+    [lsp, "--stdio"],
+    stdin=subprocess.PIPE,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
+    cwd=root,
+    bufsize=0,
+)
+
+workspace = None
+try:
+    workspace = tempfile.TemporaryDirectory(prefix="zed-zuzu-lsp-smoke-")
+    workspace_uri = pathlib.Path(workspace.name).as_uri()
+    send(
+        process,
+        {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "initialize",
+            "params": {
+                "processId": None,
+                "rootUri": workspace_uri,
+                "capabilities": {},
+            },
+        },
+    )
+    response = read_message(process)
+    capabilities = response.get("result", {}).get("capabilities", {})
+    required = {
+        "definitionProvider": lambda value: value is True,
+        "documentSymbolProvider": lambda value: value is True,
+        "foldingRangeProvider": lambda value: value is True or isinstance(value, dict),
+        "referencesProvider": lambda value: value is True,
+        "renameProvider": lambda value: isinstance(value, dict) or value is True,
+        "semanticTokensProvider": lambda value: isinstance(value, dict),
+    }
+    missing = [
+        name
+        for name, predicate in required.items()
+        if not predicate(capabilities.get(name))
+    ]
+    if missing:
+        print("missing LSP capabilities: " + ", ".join(missing))
+        sys.exit(1)
+    print("definition, symbols, folding, references, rename, semantic tokens")
+finally:
+    if workspace is not None:
+        try:
+            workspace.cleanup()
+        except Exception:
+            pass
+    if process.stdin:
+        try:
+            send(process, {"jsonrpc": "2.0", "id": 2, "method": "shutdown"})
+            read_message(process)
+            send(process, {"jsonrpc": "2.0", "method": "exit"})
+        except Exception:
+            pass
+    try:
+        process.wait(timeout=2)
+    except subprocess.TimeoutExpired:
+        process.terminate()
+PY
 }
 
 printf 'Zed Zuzu dev-extension doctor\n'
@@ -130,6 +248,11 @@ fi
 
 if [[ -x "$lsp" ]]; then
 	check "local zuzu-lsp exists: $lsp"
+	if capabilities="$(check_lsp_capabilities 2>&1)"; then
+		check "local zuzu-lsp advertises editor capabilities: $capabilities"
+	else
+		fail "local zuzu-lsp capability smoke test failed: $capabilities"
+	fi
 else
 	fail "local zuzu-lsp is missing; run cargo build in ../zuzu-lsp"
 fi
@@ -180,4 +303,8 @@ if [[ -f "$log" ]]; then
 	grep -E 'zuzu|ZuzuScript|invalid type|language not found' "$log" | tail -20 || true
 else
 	warn "Zed log not found: $log"
+fi
+
+if $failed; then
+	exit 1
 fi
