@@ -31,6 +31,12 @@ require_line "$root/extension.toml" '^languages = \["ZuzuScript"\]$'
 require_line "$root/extension.toml" '^\[language_servers\.zuzu-lsp\.language_ids\]$'
 require_line "$root/extension.toml" '^ZuzuScript = "zuzu"$'
 
+if [[ ! -x "$root/scripts/build-extension-wasm.sh" ]]; then
+	printf 'Missing executable wasm builder: scripts/build-extension-wasm.sh\n' >&2
+	exit 1
+fi
+require_line "$root/scripts/doctor-dev-extension.sh" 'build-extension-wasm\.sh'
+
 pinned_rev="$(sed -n 's/^rev = "\([0-9a-f]\{40\}\)"$/\1/p' "$root/extension.toml")"
 grammar_head="$(git -C "$grammar" rev-parse HEAD)"
 

@@ -10,6 +10,7 @@ log="$zed_data/logs/Zed.log"
 lsp="$root/../zuzu-lsp/target/debug/zuzu-lsp"
 grammar="$root/grammars/zuzu"
 wasm="$root/extension.wasm"
+wasm_builder="$root/scripts/build-extension-wasm.sh"
 repair_index=false
 clear_wasm=false
 failed=false
@@ -22,12 +23,15 @@ for arg in "$@"; do
 		--clear-wasm)
 			clear_wasm=true
 			;;
+		--rebuild-wasm)
+			clear_wasm=true
+			;;
 		--repair-cache)
 			repair_index=true
 			clear_wasm=true
 			;;
 		-h|--help)
-			printf 'Usage: %s [--repair-index] [--clear-wasm] [--repair-cache]\n' "$0"
+			printf 'Usage: %s [--repair-index] [--rebuild-wasm] [--clear-wasm] [--repair-cache]\n' "$0"
 			exit 0
 			;;
 		*)
@@ -48,6 +52,19 @@ warn() {
 fail() {
 	failed=true
 	printf 'fail: %s\n' "$1"
+}
+
+build_wasm() {
+	if [[ ! -x "$wasm_builder" ]]; then
+		fail "extension wasm builder is missing or not executable: $wasm_builder"
+		return
+	fi
+	if output="$("$wasm_builder" 2>&1)"; then
+		check "rebuilt extension wasm"
+		printf '%s\n' "$output"
+	else
+		fail "failed to rebuild extension wasm: $output"
+	fi
 }
 
 check_lsp_capabilities() {
@@ -259,20 +276,18 @@ else
 	fail "dev extension is not installed at $installed"
 fi
 
-if [[ -f "$wasm" ]]; then
+if $clear_wasm; then
+	build_wasm
+elif [[ -f "$wasm" ]]; then
 	if [[ "$wasm" -ot "$root/src/lib.rs" || "$wasm" -ot "$root/extension.toml" || "$wasm" -ot "$root/Cargo.toml" ]]; then
 		warn "compiled extension wasm is older than the source or manifest: $wasm"
-		if $clear_wasm; then
-			rm -f "$wasm"
-			check "removed stale extension wasm; reload Zed to rebuild it"
-		else
-			warn "run $0 --clear-wasm, then reload Zed, to force a rebuild"
-		fi
+		warn "run $0 --rebuild-wasm, then reload Zed, to rebuild it"
 	else
 		check "compiled extension wasm is not older than the main source files"
 	fi
 else
-	check "compiled extension wasm is absent; Zed will rebuild it on reload"
+	warn "compiled extension wasm is absent; Zed needs this file to load the Rust extension"
+	warn "run $0 --rebuild-wasm, then reload Zed, to build it"
 fi
 
 if [[ -f "$index" ]]; then

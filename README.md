@@ -116,8 +116,21 @@ ln -sfn /home/tai/src/zuzuscript/zuzu-lsp/target/debug/zuzu-lsp ~/.local/bin/zuz
 
 After changing `extension.toml`, restart Zed or reinstall the dev extension if
 `~/.local/share/zed/extensions/index.json` still shows stale metadata.
-If Zed reports older error text after source changes, remove the generated
-`extension.wasm` and reload Zed so it recompiles the extension.
+If Zed reports older error text after source changes, rebuild the generated
+`extension.wasm` component and reload Zed:
+
+```sh
+scripts/build-extension-wasm.sh
+```
+
+The build script requires `wasm-tools` on PATH:
+
+```sh
+cargo install wasm-tools --locked
+```
+
+It fetches the WASI preview1 component adapter crate automatically when the
+adapter is not already present in the local Cargo registry.
 
 This helper checks the common local failure modes:
 
@@ -128,6 +141,9 @@ scripts/doctor-dev-extension.sh
 It verifies the dev-extension symlink, generated Zed caches, local grammar
 cache, local `zuzu-lsp` startup, advertised LSP capabilities, and a real
 go-to-definition request across a temporary workspace module.
+With `--rebuild-wasm`, it rebuilds a missing or stale `extension.wasm`.
+With `--repair-cache`, it repairs generated index metadata and rebuilds a
+missing or stale `extension.wasm`.
 
 If it reports stale Zuzu snippet metadata in Zed's generated extension index,
 clear that cache entry with:
