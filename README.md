@@ -87,6 +87,17 @@ The extension maps Zed's `ZuzuScript` language to the LSP language id `zuzu`.
 That keeps untitled ZuzuScript buffers and extensionless shebang scripts on the
 same document-classification path as `.zzs` and `.zzm` files.
 
+For local testing, check Zed's inherited PATH if the log says `zuzu-lsp` was
+not found. Desktop-launched Zed may not inherit the same shell PATH as a
+terminal. A local symlink is often enough:
+
+```sh
+ln -sfn /home/tai/src/zuzuscript/zuzu-lsp/target/debug/zuzu-lsp ~/.local/bin/zuzu-lsp
+```
+
+After changing `extension.toml`, restart Zed or reinstall the dev extension if
+`~/.local/share/zed/extensions/index.json` still shows stale metadata.
+
 ## Runnable Tasks
 
 The extension marks three Tree-sitter runnable tags:
