@@ -7,6 +7,7 @@ description = "ZuzuScript language support for Zed"
 repository = "https://github.com/zuzuscript/zed-zuzu"
 languages = ["languages/zuzu"]
 capabilities = []
+snippets = ["snippets/zuzuscript.json"]
 
 [lib]
 kind = "Rust"

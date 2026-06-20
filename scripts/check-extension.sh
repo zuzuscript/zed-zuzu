@@ -19,6 +19,7 @@ require_line() {
 require_line "$root/extension.toml" '^id = "zuzu"$'
 require_line "$root/extension.toml" '^schema_version = 1$'
 require_line "$root/extension.toml" '^languages = \["languages/zuzu"\]$'
+require_line "$root/extension.toml" '^snippets = \["snippets/zuzuscript\.json"\]$'
 require_line "$root/extension.toml" '^\[lib\]$'
 require_line "$root/extension.toml" '^kind = "Rust"$'
 require_line "$root/extension.toml" '^version = "0\.7\.0"$'
@@ -43,6 +44,8 @@ require_line "$root/languages/zuzu/config.toml" '^name = "ZuzuScript"$'
 require_line "$root/languages/zuzu/config.toml" '^grammar = "zuzu"$'
 require_line "$root/languages/zuzu/config.toml" '^path_suffixes = \["zzs", "zzm"\]$'
 require_line "$root/languages/zuzu/config.toml" '^first_line_pattern = "\^#!\.\*\\\\bzuzu\\\\b"$'
+
+node -e 'JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"))' "$root/snippets/zuzuscript.json"
 
 for query in "$root"/languages/zuzu/*.scm; do
 	printf 'Checking %s\n' "${query#$root/}"
