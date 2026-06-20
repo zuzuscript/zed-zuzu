@@ -125,6 +125,10 @@ This helper checks the common local failure modes:
 scripts/doctor-dev-extension.sh
 ```
 
+It verifies the dev-extension symlink, generated Zed caches, local grammar
+cache, local `zuzu-lsp` startup, advertised LSP capabilities, and a real
+go-to-definition request across a temporary workspace module.
+
 If it reports stale Zuzu snippet metadata in Zed's generated extension index,
 clear that cache entry with:
 

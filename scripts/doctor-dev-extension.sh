@@ -101,6 +101,13 @@ def read_message(process):
     return json.loads(body)
 
 
+def read_response(process, expected_id):
+    while True:
+        message = read_message(process)
+        if message.get("id") == expected_id:
+            return message
+
+
 process = subprocess.Popen(
     [lsp, "--stdio"],
     stdin=subprocess.PIPE,
@@ -113,7 +120,21 @@ process = subprocess.Popen(
 workspace = None
 try:
     workspace = tempfile.TemporaryDirectory(prefix="zed-zuzu-lsp-smoke-")
-    workspace_uri = pathlib.Path(workspace.name).as_uri()
+    workspace_path = pathlib.Path(workspace.name)
+    workspace_uri = workspace_path.as_uri()
+    module_path = workspace_path / "modules" / "demo" / "tools.zzm"
+    script_path = workspace_path / "scripts" / "main.zzs"
+    module_text = "class Thing;\n"
+    script_text = (
+        "from demo/tools import Thing;\n"
+        "function __main__() {\n"
+        "\tlet item := Thing;\n"
+        "}\n"
+    )
+    module_path.parent.mkdir(parents=True)
+    script_path.parent.mkdir(parents=True)
+    module_path.write_text(module_text, encoding="utf-8")
+    script_path.write_text(script_text, encoding="utf-8")
     send(
         process,
         {
@@ -127,7 +148,7 @@ try:
             },
         },
     )
-    response = read_message(process)
+    response = read_response(process, 1)
     capabilities = response.get("result", {}).get("capabilities", {})
     required = {
         "callHierarchyProvider": lambda value: value is True,
@@ -164,7 +185,44 @@ try:
     if missing:
         print("missing LSP capabilities: " + ", ".join(missing))
         sys.exit(1)
-    print(", ".join(sorted(required.keys())) + ", workspace folders")
+    send(process, {"jsonrpc": "2.0", "method": "initialized", "params": {}})
+    for version, path, text in (
+        (1, module_path, module_text),
+        (1, script_path, script_text),
+    ):
+        send(
+            process,
+            {
+                "jsonrpc": "2.0",
+                "method": "textDocument/didOpen",
+                "params": {
+                    "textDocument": {
+                        "uri": path.as_uri(),
+                        "languageId": "zuzu",
+                        "version": version,
+                        "text": text,
+                    }
+                },
+            },
+        )
+    send(
+        process,
+        {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "method": "textDocument/definition",
+            "params": {
+                "textDocument": {"uri": script_path.as_uri()},
+                "position": {"line": 2, "character": 14},
+            },
+        },
+    )
+    definition = read_response(process, 2)
+    target = definition.get("result", {}).get("uri", "")
+    if not target.endswith("/modules/demo/tools.zzm"):
+        print(f"go to definition returned unexpected target: {target!r}")
+        sys.exit(1)
+    print(", ".join(sorted(required.keys())) + ", workspace folders, go to definition")
 finally:
     if workspace is not None:
         try:
@@ -173,8 +231,8 @@ finally:
             pass
     if process.stdin:
         try:
-            send(process, {"jsonrpc": "2.0", "id": 2, "method": "shutdown"})
-            read_message(process)
+            send(process, {"jsonrpc": "2.0", "id": 3, "method": "shutdown"})
+            read_response(process, 3)
             send(process, {"jsonrpc": "2.0", "method": "exit"})
         except Exception:
             pass
@@ -268,7 +326,7 @@ fi
 if [[ -x "$lsp" ]]; then
 	check "local zuzu-lsp exists: $lsp"
 	if capabilities="$(check_lsp_capabilities 2>&1)"; then
-		check "local zuzu-lsp advertises editor capabilities: $capabilities"
+		check "local zuzu-lsp handles editor features: $capabilities"
 	else
 		fail "local zuzu-lsp capability smoke test failed: $capabilities"
 	fi
