@@ -1,0 +1,9 @@
+(block) @fold
+(class_body) @fold
+(trait_body) @fold
+(list_literal) @fold
+(dict_literal) @fold
+(bag_literal) @fold
+(pair_list_literal) @fold
+(set_literal) @fold
+(pod_block) @fold

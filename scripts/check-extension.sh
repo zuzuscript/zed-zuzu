@@ -66,6 +66,7 @@ for query in "$root"/languages/zuzu/*.scm; do
 done
 
 cmp -s "$root/languages/zuzu/highlights.scm" "$grammar/queries/highlights.scm"
+cmp -s "$root/languages/zuzu/folds.scm" "$grammar/queries/folds.scm"
 cmp -s "$root/languages/zuzu/indents.scm" "$grammar/queries/indents.scm"
 cmp -s "$root/languages/zuzu/injections.scm" "$grammar/queries/injections.scm"
 
