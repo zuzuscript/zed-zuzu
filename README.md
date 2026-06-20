@@ -145,6 +145,22 @@ With `--rebuild-wasm`, it rebuilds a missing or stale `extension.wasm`.
 With `--repair-cache`, it repairs generated index metadata and rebuilds a
 missing or stale `extension.wasm`.
 
+Zed will not start language servers in an untrusted worktree. If the log says
+`Waiting for worktree ... before starting language server zuzu-lsp`, trust the
+worktree from Zed's Restricted Mode prompt or set `session.trust_all_worktrees`
+only in a disposable test profile.
+
+To smoke test the extension through Zed itself, including the compiled wasm and
+the LSP launch path, run:
+
+```sh
+scripts/smoke-zed-extension.sh
+```
+
+The smoke test creates an isolated Zed profile, enables `trust_all_worktrees`
+inside that temporary profile, opens a small ZuzuScript fixture, and checks
+Zed's log for `zuzu-lsp --stdio` startup.
+
 If it reports stale Zuzu snippet metadata in Zed's generated extension index,
 clear that cache entry with:
 

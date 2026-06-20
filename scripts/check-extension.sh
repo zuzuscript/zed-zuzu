@@ -35,7 +35,13 @@ if [[ ! -x "$root/scripts/build-extension-wasm.sh" ]]; then
 	printf 'Missing executable wasm builder: scripts/build-extension-wasm.sh\n' >&2
 	exit 1
 fi
+if [[ ! -x "$root/scripts/smoke-zed-extension.sh" ]]; then
+	printf 'Missing executable Zed smoke test: scripts/smoke-zed-extension.sh\n' >&2
+	exit 1
+fi
 require_line "$root/scripts/doctor-dev-extension.sh" 'build-extension-wasm\.sh'
+require_line "$root/scripts/smoke-zed-extension.sh" 'trust_all_worktrees'
+require_line "$root/scripts/smoke-zed-extension.sh" 'starting language server process'
 
 pinned_rev="$(sed -n 's/^rev = "\([0-9a-f]\{40\}\)"$/\1/p' "$root/extension.toml")"
 grammar_head="$(git -C "$grammar" rev-parse HEAD)"

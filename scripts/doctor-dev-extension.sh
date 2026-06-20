@@ -400,6 +400,10 @@ if [[ -f "$log" ]]; then
 		warn "Zed log contains the old ../zuzu-lsp error text from a stale extension build"
 		warn "run $0 --rebuild-wasm, then reload Zed, if that error is still appearing"
 	fi
+	if grep -Eq 'Waiting for worktree ".+" to be trusted, before starting language server zuzu-lsp' "$log"; then
+		warn "Zed is waiting for worktree trust before starting zuzu-lsp"
+		warn "trust the worktree in Zed, then restart the Zuzu language server"
+	fi
 else
 	warn "Zed log not found: $log"
 fi
