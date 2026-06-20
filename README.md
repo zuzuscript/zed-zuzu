@@ -104,6 +104,13 @@ This helper checks the common local failure modes:
 scripts/doctor-dev-extension.sh
 ```
 
+If it reports stale Zuzu snippet metadata in Zed's generated extension index,
+clear that cache entry with:
+
+```sh
+scripts/doctor-dev-extension.sh --repair-index
+```
+
 ## Runnable Tasks
 
 The extension marks three Tree-sitter runnable tags:

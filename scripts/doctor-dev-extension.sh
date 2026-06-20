@@ -9,6 +9,23 @@ index="$zed_data/extensions/index.json"
 log="$zed_data/logs/Zed.log"
 lsp="$root/../zuzu-lsp/target/debug/zuzu-lsp"
 grammar="$root/grammars/zuzu"
+repair_index=false
+
+for arg in "$@"; do
+	case "$arg" in
+		--repair-index)
+			repair_index=true
+			;;
+		-h|--help)
+			printf 'Usage: %s [--repair-index]\n' "$0"
+			exit 0
+			;;
+		*)
+			printf 'Unknown argument: %s\n' "$arg" >&2
+			exit 2
+			;;
+	esac
+done
 
 check() {
 	printf 'ok: %s\n' "$1"
@@ -39,10 +56,48 @@ else
 fi
 
 if [[ -f "$index" ]]; then
-	if grep -A60 '"zuzu": {' "$index" | grep -q '"snippets":'; then
-		warn "Zed extension index still has Zuzu snippet metadata; reload or reinstall the dev extension"
+	snippets_value="$(
+		python3 - "$index" <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as handle:
+    data = json.load(handle)
+
+manifest = data.get("extensions", {}).get("zuzu", {}).get("manifest", {})
+value = manifest.get("snippets")
+if value is None:
+    print("null")
+else:
+    print(value)
+PY
+	)"
+	if [[ "$snippets_value" == "null" ]]; then
+		check "Zed extension index has no active Zuzu snippet metadata"
 	else
-		check "Zed extension index has no Zuzu snippet metadata"
+		warn "Zed extension index still has Zuzu snippet metadata: $snippets_value"
+		if $repair_index && ! grep -Eq '^snippets =' "$root/extension.toml"; then
+			cp "$index" "$index.zuzu-doctor.bak"
+			python3 - "$index" <<'PY'
+import json
+import sys
+
+path = sys.argv[1]
+with open(path, encoding="utf-8") as handle:
+    data = json.load(handle)
+
+data["extensions"]["zuzu"]["manifest"]["snippets"] = None
+
+with open(path, "w", encoding="utf-8") as handle:
+    json.dump(data, handle, indent=2)
+    handle.write("\n")
+PY
+			check "repaired Zed extension index; backup written to $index.zuzu-doctor.bak"
+		elif $repair_index; then
+			warn "not repairing index because extension.toml still registers snippets"
+		else
+			warn "run $0 --repair-index, then reload Zed, to clear this generated cache entry"
+		fi
 	fi
 else
 	warn "Zed extension index not found: $index"
