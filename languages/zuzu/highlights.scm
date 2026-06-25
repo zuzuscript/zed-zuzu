@@ -227,6 +227,7 @@
   "÷"
   "mod"
   "**"
+  "#"
   "!"
   "¬"
   "not"
@@ -297,6 +298,27 @@
     (reserved_word_key) @string.special.symbol))
 
 (pair_entry
+  key: (bare_key
+    (reserved_word_key
+      [
+        "async" "await" "do" "false" "fn" "function" "new" "null" "self"
+        "spawn" "super" "true" "try"
+        "not" "abs" "sqrt" "floor" "ceil" "round" "int" "uc" "lc"
+        "length" "typeof"
+      ] @string.special.symbol)))
+
+(dict_access_expression
+  key: (bare_key) @string.special.symbol)
+
+(dict_access_expression
+  key: (bare_key
+    (identifier) @string.special.symbol))
+
+(dict_access_expression
+  key: (bare_key
+    (reserved_word_key) @string.special.symbol))
+
+(dict_access_expression
   key: (bare_key
     (reserved_word_key
       [
